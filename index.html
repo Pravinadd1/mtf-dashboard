@@ -40,7 +40,10 @@
             margin-bottom: 20px;
         }
         .top-bar h1 { margin: 0; font-size: 20px; font-weight: 600; }
-        .timestamp { font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 4px; }
+        .status-container { display: flex; align-items: center; gap: 10px; }
+        .timestamp { font-size: 14px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 4px; }
+        .refresh-btn { background: var(--green); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s; }
+        .refresh-btn:hover { background: #059669; }
         
         /* Summary Cards */
         .summary-grid {
@@ -81,7 +84,7 @@
             align-items: center;
             background: #fdfdfd;
         }
-        summary::-webkit-details-marker { display: none; } /* Hide default arrow */
+        summary::-webkit-details-marker { display: none; }
         summary::after { content: '▼'; font-size: 12px; transition: transform 0.2s; }
         details[open] summary::after { content: '▲'; }
         details[open] summary { border-bottom: 1px solid var(--border); }
@@ -107,7 +110,10 @@
 <div class="dashboard-container">
     <div class="top-bar">
         <h1>🏠 MTF PORTFOLIO DASHBOARD</h1>
-        <div class="timestamp" id="live-status">Live Status: Connecting to live database...</div>
+        <div class="status-container">
+            <div class="timestamp" id="live-status">Connecting to live database...</div>
+            <button class="refresh-btn" onclick="fetchDashboardData()">↻ Refresh Live</button>
+        </div>
     </div>
 
     <div class="summary-grid">
@@ -220,25 +226,33 @@
 
 <script>
     // --- 1. GOOGLE APP SCRIPT API URL ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbwjjfZ5cwkcUHwtv3hSKLOuFUlsQKPcKbiT2xxI58n8_OeVs6SLkEumw_i7Q69b-N-4/exec?mode=data";
+    const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwjjfZ5cwkcUHwtv3hSKLOuFUlsQKPcKbiT2xxI58n8_OeVs6SLkEumw_i7Q69b-N-4/exec";
 
-    // --- 2. DATA FETCH ENGINE ---
+    // --- 2. DATA FETCH ENGINE (WITH CACHE BUSTER) ---
     async function fetchDashboardData() {
+        // Change UI state to let user know it's working
+        document.getElementById('live-status').innerText = "Fetching fresh data...";
+        
         try {
-            const response = await fetch(API_URL);
+            // Append a unique timestamp so Google NEVER sends a cached version
+            const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
+            
+            const response = await fetch(cacheBusterUrl, { redirect: "follow" });
             const data = await response.json();
+            
             renderDashboard(data);
         } catch (error) {
             console.error("Error fetching data:", error);
-            document.getElementById('live-status').innerText = "Live Status: Connection Failed. Please refresh.";
-            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red;">Data fetch failed.</td></tr>`;
+            document.getElementById('live-status').innerText = "❌ Connection Failed. Check Permissions.";
+            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red; padding:20px;">
+                <b>Failed to pull data. Ensure your Google Web App deployment is set to "Who has access: Anyone".</b>
+            </td></tr>`;
         }
     }
 
     // --- 3. RENDER ENGINE ---
     function formatCurrency(numStr) {
         if (!numStr) return "₹0";
-        // If it already has formatting from Google Sheets, leave it
         if (String(numStr).includes("₹")) return numStr;
         return "₹" + numStr;
     }
@@ -271,7 +285,7 @@
 
         // --- Render Section 1: Open Positions ---
         const s1 = document.getElementById('sec1-table');
-        s1.innerHTML = ""; // Clear loader
+        s1.innerHTML = "";
         if(data.sec1 && data.sec1.length > 0) {
             data.sec1.forEach(r => {
                 const badge = String(r.type).toLowerCase() === 'mtf' ? 'badge-mtf' : 'badge-delivery';

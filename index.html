@@ -6,13 +6,15 @@
     <title>🏠 Dynamic MTF Portfolio Dashboard</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            /* Light Theme Colors */
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
             --green: #10b981;
             --red: #ef4444;
-            --border: #334155;
+            --border: #e5e7eb;
+            --header-bg: #1e293b;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -25,52 +27,85 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-        .header {
+        
+        /* Top Header */
+        .top-bar {
+            background: var(--header-bg);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
-        .header h1 { margin: 0; font-size: 24px; }
-        .timestamp { color: var(--text-muted); font-size: 14px; }
+        .top-bar h1 { margin: 0; font-size: 20px; font-weight: 600; }
+        .timestamp { font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 4px; }
         
         /* Summary Cards */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         .card {
             background: var(--card-bg);
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .card-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .card-value { font-size: 20px; font-weight: bold; }
+        .card-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 600;}
+        .card-value { font-size: 22px; font-weight: bold; margin-bottom: 5px;}
+        .card-sub { font-size: 11px; color: var(--text-muted); }
+
+        /* Collapsible Sections */
+        details {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        summary {
+            padding: 15px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fdfdfd;
+        }
+        summary::-webkit-details-marker { display: none; } /* Hide default arrow */
+        summary::after { content: '▼'; font-size: 12px; transition: transform 0.2s; }
+        details[open] summary::after { content: '▲'; }
+        details[open] summary { border-bottom: 1px solid var(--border); }
         
         /* Tables */
-        .section-title { font-size: 18px; margin: 25px 0 10px 0; color: var(--text-muted); }
-        .table-responsive { overflow-x: auto; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        .table-responsive { overflow-x: auto; padding: 0; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; white-space: nowrap; }
         th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        th { background: #111827; color: var(--text-muted); font-weight: 600; }
-        tr:hover { background: #24334d; }
+        th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+        tr:hover { background: #f8fafc; }
         
-        .pos-value { color: var(--green); }
-        .neg-value { color: var(--red); }
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .badge-mtf { background: #3b82f6; color: white; }
-        .badge-delivery { background: #64748b; color: white; }
+        /* Utilities */
+        .pos-value { color: var(--green); font-weight: 500;}
+        .neg-value { color: var(--red); font-weight: 500;}
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge-mtf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;}
+        .badge-delivery { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;}
+        .bold { font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="dashboard-container">
-    <div class="header">
+    <div class="top-bar">
         <h1>🏠 MTF PORTFOLIO DASHBOARD</h1>
         <div class="timestamp" id="live-status">Live Status: Loading Data...</div>
     </div>
@@ -79,100 +114,209 @@
         <div class="card">
             <div class="card-title">💰 Opening Capital</div>
             <div class="card-value" id="open-capital">₹0</div>
+            <div class="card-sub">Deployed Jan-2026</div>
         </div>
         <div class="card">
             <div class="card-title">📂 Open Positions</div>
             <div class="card-value" id="open-count">0 Stocks</div>
+            <div class="card-sub">Awaiting exit strategy</div>
         </div>
         <div class="card">
             <div class="card-title">✅ Closed Trades</div>
             <div class="card-value" id="closed-count">0 Trades</div>
+            <div class="card-sub">FIFO matched records</div>
         </div>
         <div class="card">
             <div class="card-title">📈 Total Net P&L</div>
             <div class="card-value" id="net-pl">₹0</div>
+            <div class="card-sub">All weeks combined</div>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 Net P&L (+Open)</div>
+            <div class="card-value" id="net-pl-open">₹0</div>
+            <div class="card-sub">Includes current open holdings</div>
+        </div>
+        <div class="card">
+            <div class="card-title">📉 Net P&L (MTF Only)</div>
+            <div class="card-value" id="net-pl-mtf">₹0</div>
+            <div class="card-sub">From Open Positions</div>
         </div>
     </div>
 
-    <div class="section-title">📂 SECTION 1 — OPEN POSITIONS ANALYSIS</div>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>STOCK</th>
-                    <th>BUY DATE</th>
-                    <th>QTY</th>
-                    <th>BUY PRICE</th>
-                    <th>TOTAL BUY VALUE</th>
-                    <th>CMP</th>
-                    <th>CURRENT VALUE</th>
-                    <th>UNREALISED P&L</th>
-                    <th>TYPE</th>
-                </tr>
-            </thead>
-            <tbody id="open-positions-table">
-                </tbody>
-        </table>
-    </div>
+    <details open>
+        <summary>📂 SECTION 1 — OPEN POSITIONS ANALYSIS</summary>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th><th>STOCK</th><th>BUY DATE</th><th>QTY</th><th>BUY PRICE</th>
+                        <th>TOTAL BUY VALUE</th><th>DAYS HELD</th><th>CMP</th><th>CURRENT VALUE</th>
+                        <th>UNREALISED P&L</th><th>TYPE</th><th>CASH MARGIN</th><th>MTF MARGIN</th>
+                        <th>MTF INTEREST</th><th>DELIVERY PL</th><th>MTF PL</th><th>TOTAL PL</th><th>ROI</th>
+                    </tr>
+                </thead>
+                <tbody id="sec1-table"></tbody>
+            </table>
+        </div>
+    </details>
+
+    <details open>
+        <summary>📅 SECTION 2 — WEEKLY PERFORMANCE SUMMARY</summary>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th><th>START DATE</th><th>END DATE</th><th>TOTAL TRADED VALUE</th>
+                        <th>TOTAL BROKERAGE</th><th>MTF INTEREST</th><th>GROSS P&L</th><th>NET P&L</th>
+                        <th>CUMULATIVE P&L</th><th>DRAWDOWN %</th><th>TRADES</th><th>SUCCESS</th>
+                        <th>FAILED</th><th>WIN RATE</th>
+                    </tr>
+                </thead>
+                <tbody id="sec2-table"></tbody>
+            </table>
+        </div>
+    </details>
+
+    <details>
+        <summary>📈 SECTION 3 — HISTORICAL STRATEGY BILLING & TRENDS</summary>
+        <div class="table-responsive">
+            <table style="white-space: normal;">
+                <thead>
+                    <tr>
+                        <th>METRIC DIMENSION</th>
+                        <th>CURRENT PERFORMANCE VALUE</th>
+                        <th>ALLOCATION TARGET STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="sec3-table"></tbody>
+            </table>
+        </div>
+    </details>
+
+    <details>
+        <summary>📊 SECTION 4 — INDIVIDUAL TRADE RECORDS (NEW TRADE ANALYSIS)</summary>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STOCK NAME</th><th>STATUS</th><th>BUY DATE</th><th>QTY</th>
+                        <th>BUY PRICE</th><th>TOTAL VALUE</th><th>SELL DATE</th><th>NET P&L</th><th>ROI</th>
+                    </tr>
+                </thead>
+                <tbody id="sec4-table"></tbody>
+            </table>
+        </div>
+    </details>
+
 </div>
 
 <script>
-    // 1. THIS IS YOUR DATA STORE. 
-    // In production, you can change this setup to fetch directly from a Google Sheet CSV export.
-    const portfolioData = {
-        openingCapital: 8000000,
-        lastUpdated: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-        openPositions: [
-            { stock: "M&M", buyDate: "2026-06-25", qty: 500, buyPrice: 3164, cmp: 3138, type: "MTF" },
-            { stock: "THELEELA", buyDate: "2026-06-25", qty: 500, buyPrice: 484, cmp: 481, type: "Delivery" },
-            { stock: "MOTHERSON", buyDate: "2026-06-25", qty: 5000, buyPrice: 152, cmp: 146.7, type: "MTF" },
-            { stock: "OLAELEC", buyDate: "2026-06-24", qty: 10000, buyPrice: 43, cmp: 44.4, type: "Delivery" }
+    // --- 1. MOCK DATA STORE ---
+    // You will replace this logic with your fetch() API call to your Google Script later
+    const mockData = {
+        topMetrics: {
+            lastUpdated: "05 Jul 2026",
+            openingCapital: 8000000,
+            openStocks: 8,
+            closedTrades: 36,
+            netPL: 992223,
+            netPLOpen: 879409,
+            netPLMTF: -54975
+        },
+        sec1: [
+            { id: 1, stock: "M&M", buyDate: "2026-06-25", qty: "500", buyPrice: "3,164", buyVal: "1,582,000", days: 10, cmp: "3,138", curVal: "1,568,800", unPL: "-13,200", type: "MTF", cMar: "272,637", mMar: "1,309,360", mInt: "3,498", dPl: "0", mPl: "-16,698", tPl: "-16,698", roi: "-1%" },
+            { id: 2, stock: "THELEELA", buyDate: "2026-06-25", qty: "500", buyPrice: "484", buyVal: "241,970", days: 10, cmp: "481", curVal: "240,500", unPL: "-1,470", type: "Delivery", cMar: "0", mMar: "0", mInt: "0", dPl: "-1,470", mPl: "0", tPl: "-1,470", roi: "-1%" }
         ],
-        closedTradesCount: 36,
-        realizedNetPL: 992223
+        sec2: [
+            { id: 3, start: "2026-04-11", end: "2026-04-17", traded: "13,531,200", brok: "47,315", mInt: "12,620", gPl: "+977,594", nPl: "+917,660", cPl: "+896,986", draw: "11.21%", trades: 19, suc: 18, fail: 1, win: "95%" },
+            { id: 14, start: "2026-06-27", end: "2026-07-03", traded: "6,572,200", brok: "29,701", mInt: "3,212", gPl: "+181,148", nPl: "+148,234", cPl: "+921,147", draw: "11.51%", trades: 13, suc: 4, fail: 9, win: "31%" }
+        ],
+        sec3: [
+            { dim: "Account Peak-to-Trough Drawdown Max", val: "11.51%", stat: "Within Limits (< 15%)" },
+            { dim: "Aggregate Capital Gain Ratio (Realized)", val: "12.40%", stat: "Exceeding Baseline Targets" },
+            { dim: "MTF Leverage Carry Efficiency P.A.", val: "9.75% Per Annum", stat: "Locked/Optimized" }
+        ],
+        sec4: [
+            { stock: "BAJFINANCE", status: "Closed", bDate: "2026-04-01", qty: "2,000", bPrice: "835.82", tVal: "1,671,640", sDate: "2026-04-16", nPl: "+178,642.00", roi: "10.69%" },
+            { stock: "INFY", status: "Open", bDate: "2026-06-15", qty: "1,000", bPrice: "1,137.20", tVal: "1,137,200", sDate: "-", nPl: "-92,792.60", roi: "-8.16%" }
+        ]
     };
 
-    // 2. RENDER ENGINE: Calculates values mathematically and generates the UI elements dynamically
+    // --- 2. RENDER ENGINE ---
+    function formatCurrency(num) {
+        return "₹" + num.toLocaleString('en-IN');
+    }
+
+    function getColorClass(valStr) {
+        if (!valStr || String(valStr).trim() === "0") return "";
+        return String(valStr).includes("-") ? "neg-value" : "pos-value";
+    }
+
     function renderDashboard(data) {
-        // Update top cards
-        document.getElementById('live-status').innerText = `Live Status: As of ${data.lastUpdated}`;
-        document.getElementById('open-capital').innerText = `₹${data.openingCapital.toLocaleString('en-IN')}`;
-        document.getElementById('open-count').innerText = `${data.openPositions.length} Stocks`;
-        document.getElementById('closed-count').innerText = `${data.closedTradesCount} Trades`;
-        document.getElementById('net-pl').innerText = `₹${data.realizedNetPL.toLocaleString('en-IN')}`;
+        // Render Top Cards
+        document.getElementById('live-status').innerText = `Live Status: As of ${data.topMetrics.lastUpdated}`;
+        document.getElementById('open-capital').innerText = formatCurrency(data.topMetrics.openingCapital);
+        document.getElementById('open-count').innerText = `${data.topMetrics.openStocks} Stocks`;
+        document.getElementById('closed-count').innerText = `${data.topMetrics.closedTrades} Trades`;
+        
+        ['netPL', 'netPLOpen', 'netPLMTF'].forEach(key => {
+            const el = document.getElementById(key.replace(/([A-Z])/g, "-$1").toLowerCase());
+            el.innerText = formatCurrency(data.topMetrics[key]);
+            el.className = `card-value ${getColorClass(data.topMetrics[key])}`;
+        });
 
-        const openTableBody = document.getElementById('open-positions-table');
-        openTableBody.innerHTML = ""; // Clear loader
+        // Render Section 1
+        const s1 = document.getElementById('sec1-table');
+        data.sec1.forEach(r => {
+            const badge = r.type.toLowerCase() === 'mtf' ? 'badge-mtf' : 'badge-delivery';
+            s1.innerHTML += `<tr>
+                <td>${r.id}</td><td><b class="bold">${r.stock}</b></td><td>${r.buyDate}</td><td>${r.qty}</td>
+                <td>${r.buyPrice}</td><td>${r.buyVal}</td><td>${r.days}</td><td>${r.cmp}</td><td>${r.curVal}</td>
+                <td class="${getColorClass(r.unPL)}">${r.unPL}</td>
+                <td><span class="badge ${badge}">${r.type}</span></td>
+                <td>${r.cMar}</td><td>${r.mMar}</td><td>${r.mInt}</td>
+                <td class="${getColorClass(r.dPl)}">${r.dPl}</td>
+                <td class="${getColorClass(r.mPl)}">${r.mPl}</td>
+                <td class="${getColorClass(r.tPl)}">${r.tPl}</td>
+                <td class="${getColorClass(r.roi)}">${r.roi}</td>
+            </tr>`;
+        });
 
-        // Populate and calculate Open Positions Row Items
-        data.openPositions.forEach(pos => {
-            const totalBuyValue = pos.qty * pos.buyPrice;
-            const currentValue = pos.qty * pos.cmp;
-            const unrealizedPL = currentValue - totalBuyValue;
-            const plClass = unrealizedPL >= 0 ? 'pos-value' : 'neg-value';
-            const plSign = unrealizedPL >= 0 ? '+' : '';
+        // Render Section 2
+        const s2 = document.getElementById('sec2-table');
+        data.sec2.forEach(r => {
+            s2.innerHTML += `<tr>
+                <td>${r.id}</td><td>${r.start}</td><td>${r.end}</td><td>${r.traded}</td>
+                <td>${r.brok}</td><td>${r.mInt}</td>
+                <td class="${getColorClass(r.gPl)}">${r.gPl}</td>
+                <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
+                <td class="${getColorClass(r.cPl)}">${r.cPl}</td>
+                <td>${r.draw}</td><td>${r.trades}</td><td>${r.suc}</td><td>${r.fail}</td><td>${r.win}</td>
+            </tr>`;
+        });
 
-            const row = `
-                <tr>
-                    <td><b>${pos.stock}</b></td>
-                    <td>${pos.buyDate}</td>
-                    <td>${pos.qty.toLocaleString('en-IN')}</td>
-                    <td>₹${pos.buyPrice.toLocaleString('en-IN')}</td>
-                    <td>₹${totalBuyValue.toLocaleString('en-IN')}</td>
-                    <td>₹${pos.cmp.toLocaleString('en-IN')}</td>
-                    <td>₹${currentValue.toLocaleString('en-IN')}</td>
-                    <td class="${plClass}">${plSign}₹${unrealizedPL.toLocaleString('en-IN')}</td>
-                    <td><span class="badge badge-${pos.type.toLowerCase()}">${pos.type}</span></td>
-                </tr>
-            `;
-            openTableBody.innerHTML += row;
+        // Render Section 3
+        const s3 = document.getElementById('sec3-table');
+        data.sec3.forEach(r => {
+            s3.innerHTML += `<tr>
+                <td>${r.dim}</td><td><b class="bold">${r.val}</b></td><td>${r.stat}</td>
+            </tr>`;
+        });
+
+        // Render Section 4
+        const s4 = document.getElementById('sec4-table');
+        data.sec4.forEach(r => {
+            s4.innerHTML += `<tr>
+                <td><b class="bold">${r.stock}</b></td><td><i>${r.status}</i></td><td>${r.bDate}</td>
+                <td>${r.qty}</td><td>${r.bPrice}</td><td>${r.tVal}</td><td>${r.sDate}</td>
+                <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
+                <td class="${getColorClass(r.roi)}">${r.roi}</td>
+            </tr>`;
         });
     }
 
-    // Initialize Dashboard rendering process
-    window.onload = () => {
-        renderDashboard(portfolioData);
-    };
+    // Trigger pipeline on load
+    window.onload = () => renderDashboard(mockData);
 </script>
 </body>
 </html>

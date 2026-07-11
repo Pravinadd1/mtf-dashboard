@@ -107,7 +107,7 @@
 <div class="dashboard-container">
     <div class="top-bar">
         <h1>🏠 MTF PORTFOLIO DASHBOARD</h1>
-        <div class="timestamp" id="live-status">Live Status: Loading Data...</div>
+        <div class="timestamp" id="live-status">Live Status: Connecting to live database...</div>
     </div>
 
     <div class="summary-grid">
@@ -118,27 +118,27 @@
         </div>
         <div class="card">
             <div class="card-title">📂 Open Positions</div>
-            <div class="card-value" id="open-count">0 Stocks</div>
+            <div class="card-value" id="open-count">Loading...</div>
             <div class="card-sub">Awaiting exit strategy</div>
         </div>
         <div class="card">
             <div class="card-title">✅ Closed Trades</div>
-            <div class="card-value" id="closed-count">0 Trades</div>
+            <div class="card-value" id="closed-count">Loading...</div>
             <div class="card-sub">FIFO matched records</div>
         </div>
         <div class="card">
             <div class="card-title">📈 Total Net P&L</div>
-            <div class="card-value" id="net-pl">₹0</div>
+            <div class="card-value" id="net-pl">Loading...</div>
             <div class="card-sub">All weeks combined</div>
         </div>
         <div class="card">
             <div class="card-title">📊 Net P&L (+Open)</div>
-            <div class="card-value" id="net-pl-open">₹0</div>
+            <div class="card-value" id="net-pl-open">Loading...</div>
             <div class="card-sub">Includes current open holdings</div>
         </div>
         <div class="card">
             <div class="card-title">📉 Net P&L (MTF Only)</div>
-            <div class="card-value" id="net-pl-mtf">₹0</div>
+            <div class="card-value" id="net-pl-mtf">Loading...</div>
             <div class="card-sub">From Open Positions</div>
         </div>
     </div>
@@ -155,7 +155,9 @@
                         <th>MTF INTEREST</th><th>DELIVERY PL</th><th>MTF PL</th><th>TOTAL PL</th><th>ROI</th>
                     </tr>
                 </thead>
-                <tbody id="sec1-table"></tbody>
+                <tbody id="sec1-table">
+                    <tr><td colspan="18" style="text-align:center; padding: 20px;">Fetching open positions...</td></tr>
+                </tbody>
             </table>
         </div>
     </details>
@@ -172,7 +174,9 @@
                         <th>FAILED</th><th>WIN RATE</th>
                     </tr>
                 </thead>
-                <tbody id="sec2-table"></tbody>
+                <tbody id="sec2-table">
+                    <tr><td colspan="14" style="text-align:center; padding: 20px;">Fetching weekly records...</td></tr>
+                </tbody>
             </table>
         </div>
     </details>
@@ -188,7 +192,9 @@
                         <th>ALLOCATION TARGET STATUS</th>
                     </tr>
                 </thead>
-                <tbody id="sec3-table"></tbody>
+                <tbody id="sec3-table">
+                    <tr><td colspan="3" style="text-align:center; padding: 20px;">Fetching trends...</td></tr>
+                </tbody>
             </table>
         </div>
     </details>
@@ -203,7 +209,9 @@
                         <th>BUY PRICE</th><th>TOTAL VALUE</th><th>SELL DATE</th><th>NET P&L</th><th>ROI</th>
                     </tr>
                 </thead>
-                <tbody id="sec4-table"></tbody>
+                <tbody id="sec4-table">
+                    <tr><td colspan="9" style="text-align:center; padding: 20px;">Fetching trade log...</td></tr>
+                </tbody>
             </table>
         </div>
     </details>
@@ -211,112 +219,128 @@
 </div>
 
 <script>
-    // --- 1. MOCK DATA STORE ---
-    // You will replace this logic with your fetch() API call to your Google Script later
-    const mockData = {
-        topMetrics: {
-            lastUpdated: "05 Jul 2026",
-            openingCapital: 8000000,
-            openStocks: 8,
-            closedTrades: 36,
-            netPL: 992223,
-            netPLOpen: 879409,
-            netPLMTF: -54975
-        },
-        sec1: [
-            { id: 1, stock: "M&M", buyDate: "2026-06-25", qty: "500", buyPrice: "3,164", buyVal: "1,582,000", days: 10, cmp: "3,138", curVal: "1,568,800", unPL: "-13,200", type: "MTF", cMar: "272,637", mMar: "1,309,360", mInt: "3,498", dPl: "0", mPl: "-16,698", tPl: "-16,698", roi: "-1%" },
-            { id: 2, stock: "THELEELA", buyDate: "2026-06-25", qty: "500", buyPrice: "484", buyVal: "241,970", days: 10, cmp: "481", curVal: "240,500", unPL: "-1,470", type: "Delivery", cMar: "0", mMar: "0", mInt: "0", dPl: "-1,470", mPl: "0", tPl: "-1,470", roi: "-1%" }
-        ],
-        sec2: [
-            { id: 3, start: "2026-04-11", end: "2026-04-17", traded: "13,531,200", brok: "47,315", mInt: "12,620", gPl: "+977,594", nPl: "+917,660", cPl: "+896,986", draw: "11.21%", trades: 19, suc: 18, fail: 1, win: "95%" },
-            { id: 14, start: "2026-06-27", end: "2026-07-03", traded: "6,572,200", brok: "29,701", mInt: "3,212", gPl: "+181,148", nPl: "+148,234", cPl: "+921,147", draw: "11.51%", trades: 13, suc: 4, fail: 9, win: "31%" }
-        ],
-        sec3: [
-            { dim: "Account Peak-to-Trough Drawdown Max", val: "11.51%", stat: "Within Limits (< 15%)" },
-            { dim: "Aggregate Capital Gain Ratio (Realized)", val: "12.40%", stat: "Exceeding Baseline Targets" },
-            { dim: "MTF Leverage Carry Efficiency P.A.", val: "9.75% Per Annum", stat: "Locked/Optimized" }
-        ],
-        sec4: [
-            { stock: "BAJFINANCE", status: "Closed", bDate: "2026-04-01", qty: "2,000", bPrice: "835.82", tVal: "1,671,640", sDate: "2026-04-16", nPl: "+178,642.00", roi: "10.69%" },
-            { stock: "INFY", status: "Open", bDate: "2026-06-15", qty: "1,000", bPrice: "1,137.20", tVal: "1,137,200", sDate: "-", nPl: "-92,792.60", roi: "-8.16%" }
-        ]
-    };
+    // --- 1. GOOGLE APP SCRIPT API URL ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbwjjfZ5cwkcUHwtv3hSKLOuFUlsQKPcKbiT2xxI58n8_OeVs6SLkEumw_i7Q69b-N-4/exec?mode=data";
 
-    // --- 2. RENDER ENGINE ---
-    function formatCurrency(num) {
-        return "₹" + num.toLocaleString('en-IN');
+    // --- 2. DATA FETCH ENGINE ---
+    async function fetchDashboardData() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            renderDashboard(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            document.getElementById('live-status').innerText = "Live Status: Connection Failed. Please refresh.";
+            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red;">Data fetch failed.</td></tr>`;
+        }
+    }
+
+    // --- 3. RENDER ENGINE ---
+    function formatCurrency(numStr) {
+        if (!numStr) return "₹0";
+        // If it already has formatting from Google Sheets, leave it
+        if (String(numStr).includes("₹")) return numStr;
+        return "₹" + numStr;
     }
 
     function getColorClass(valStr) {
-        if (!valStr || String(valStr).trim() === "0") return "";
+        if (!valStr || String(valStr).trim() === "0" || String(valStr).trim() === "-" || String(valStr).trim() === "0.00%") return "";
         return String(valStr).includes("-") ? "neg-value" : "pos-value";
     }
 
     function renderDashboard(data) {
-        // Render Top Cards
+        // --- Render Top Cards ---
         document.getElementById('live-status').innerText = `Live Status: As of ${data.topMetrics.lastUpdated}`;
         document.getElementById('open-capital').innerText = formatCurrency(data.topMetrics.openingCapital);
-        document.getElementById('open-count').innerText = `${data.topMetrics.openStocks} Stocks`;
-        document.getElementById('closed-count').innerText = `${data.topMetrics.closedTrades} Trades`;
+        document.getElementById('open-count').innerText = data.topMetrics.openStocks;
+        document.getElementById('closed-count').innerText = data.topMetrics.closedTrades;
         
-        ['netPL', 'netPLOpen', 'netPLMTF'].forEach(key => {
-            const el = document.getElementById(key.replace(/([A-Z])/g, "-$1").toLowerCase());
-            el.innerText = formatCurrency(data.topMetrics[key]);
-            el.className = `card-value ${getColorClass(data.topMetrics[key])}`;
-        });
+        const metricMap = {
+            'net-pl': data.topMetrics.netPL,
+            'net-pl-open': data.topMetrics.netPLOpen,
+            'net-pl-mtf': data.topMetrics.netPLMTF
+        };
 
-        // Render Section 1
+        for (const [id, value] of Object.entries(metricMap)) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = formatCurrency(value);
+                el.className = `card-value ${getColorClass(value)}`;
+            }
+        }
+
+        // --- Render Section 1: Open Positions ---
         const s1 = document.getElementById('sec1-table');
-        data.sec1.forEach(r => {
-            const badge = r.type.toLowerCase() === 'mtf' ? 'badge-mtf' : 'badge-delivery';
-            s1.innerHTML += `<tr>
-                <td>${r.id}</td><td><b class="bold">${r.stock}</b></td><td>${r.buyDate}</td><td>${r.qty}</td>
-                <td>${r.buyPrice}</td><td>${r.buyVal}</td><td>${r.days}</td><td>${r.cmp}</td><td>${r.curVal}</td>
-                <td class="${getColorClass(r.unPL)}">${r.unPL}</td>
-                <td><span class="badge ${badge}">${r.type}</span></td>
-                <td>${r.cMar}</td><td>${r.mMar}</td><td>${r.mInt}</td>
-                <td class="${getColorClass(r.dPl)}">${r.dPl}</td>
-                <td class="${getColorClass(r.mPl)}">${r.mPl}</td>
-                <td class="${getColorClass(r.tPl)}">${r.tPl}</td>
-                <td class="${getColorClass(r.roi)}">${r.roi}</td>
-            </tr>`;
-        });
+        s1.innerHTML = ""; // Clear loader
+        if(data.sec1 && data.sec1.length > 0) {
+            data.sec1.forEach(r => {
+                const badge = String(r.type).toLowerCase() === 'mtf' ? 'badge-mtf' : 'badge-delivery';
+                s1.innerHTML += `<tr>
+                    <td>${r.id}</td><td><b class="bold">${r.stock}</b></td><td>${r.buyDate}</td><td>${r.qty}</td>
+                    <td>${r.buyPrice}</td><td>${r.buyVal}</td><td>${r.days}</td><td>${r.cmp}</td><td>${r.curVal}</td>
+                    <td class="${getColorClass(r.unPL)}">${r.unPL}</td>
+                    <td><span class="badge ${badge}">${r.type}</span></td>
+                    <td>${r.cMar}</td><td>${r.mMar}</td><td>${r.mInt}</td>
+                    <td class="${getColorClass(r.dPl)}">${r.dPl}</td>
+                    <td class="${getColorClass(r.mPl)}">${r.mPl}</td>
+                    <td class="${getColorClass(r.tPl)}">${r.tPl}</td>
+                    <td class="${getColorClass(r.roi)}">${r.roi}</td>
+                </tr>`;
+            });
+        } else {
+            s1.innerHTML = `<tr><td colspan="18" style="text-align:center;">No open positions found.</td></tr>`;
+        }
 
-        // Render Section 2
+        // --- Render Section 2: Weekly Performance ---
         const s2 = document.getElementById('sec2-table');
-        data.sec2.forEach(r => {
-            s2.innerHTML += `<tr>
-                <td>${r.id}</td><td>${r.start}</td><td>${r.end}</td><td>${r.traded}</td>
-                <td>${r.brok}</td><td>${r.mInt}</td>
-                <td class="${getColorClass(r.gPl)}">${r.gPl}</td>
-                <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
-                <td class="${getColorClass(r.cPl)}">${r.cPl}</td>
-                <td>${r.draw}</td><td>${r.trades}</td><td>${r.suc}</td><td>${r.fail}</td><td>${r.win}</td>
-            </tr>`;
-        });
+        s2.innerHTML = "";
+        if(data.sec2 && data.sec2.length > 0) {
+            data.sec2.forEach(r => {
+                s2.innerHTML += `<tr>
+                    <td>${r.id}</td><td>${r.start}</td><td>${r.end}</td><td>${r.traded}</td>
+                    <td>${r.brok}</td><td>${r.mInt}</td>
+                    <td class="${getColorClass(r.gPl)}">${r.gPl}</td>
+                    <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
+                    <td class="${getColorClass(r.cPl)}">${r.cPl}</td>
+                    <td class="${getColorClass(r.draw)}">${r.draw}</td><td>${r.trades}</td><td>${r.suc}</td><td>${r.fail}</td><td>${r.win}</td>
+                </tr>`;
+            });
+        } else {
+            s2.innerHTML = `<tr><td colspan="14" style="text-align:center;">No weekly data found.</td></tr>`;
+        }
 
-        // Render Section 3
+        // --- Render Section 3: Billing & Trends ---
         const s3 = document.getElementById('sec3-table');
-        data.sec3.forEach(r => {
-            s3.innerHTML += `<tr>
-                <td>${r.dim}</td><td><b class="bold">${r.val}</b></td><td>${r.stat}</td>
-            </tr>`;
-        });
+        s3.innerHTML = "";
+        if(data.sec3 && data.sec3.length > 0) {
+            data.sec3.forEach(r => {
+                s3.innerHTML += `<tr>
+                    <td>${r.dim}</td><td><b class="bold">${r.val}</b></td><td>${r.stat}</td>
+                </tr>`;
+            });
+        } else {
+            s3.innerHTML = `<tr><td colspan="3" style="text-align:center;">No trends data found.</td></tr>`;
+        }
 
-        // Render Section 4
+        // --- Render Section 4: Individual Trades ---
         const s4 = document.getElementById('sec4-table');
-        data.sec4.forEach(r => {
-            s4.innerHTML += `<tr>
-                <td><b class="bold">${r.stock}</b></td><td><i>${r.status}</i></td><td>${r.bDate}</td>
-                <td>${r.qty}</td><td>${r.bPrice}</td><td>${r.tVal}</td><td>${r.sDate}</td>
-                <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
-                <td class="${getColorClass(r.roi)}">${r.roi}</td>
-            </tr>`;
-        });
+        s4.innerHTML = "";
+        if(data.sec4 && data.sec4.length > 0) {
+            data.sec4.forEach(r => {
+                s4.innerHTML += `<tr>
+                    <td><b class="bold">${r.stock}</b></td><td><i>${r.status}</i></td><td>${r.bDate}</td>
+                    <td>${r.qty}</td><td>${r.bPrice}</td><td>${r.tVal}</td><td>${r.sDate}</td>
+                    <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
+                    <td class="${getColorClass(r.roi)}">${r.roi}</td>
+                </tr>`;
+            });
+        } else {
+            s4.innerHTML = `<tr><td colspan="9" style="text-align:center;">No individual trade records found.</td></tr>`;
+        }
     }
 
-    // Trigger pipeline on load
-    window.onload = () => renderDashboard(mockData);
+    // --- 4. START PROCESS ON PAGE LOAD ---
+    window.onload = fetchDashboardData;
 </script>
 </body>
 </html>

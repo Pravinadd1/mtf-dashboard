@@ -43,7 +43,7 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbz5XOZAyFHmW_YZ6HAjARun1J5ECIQVKlUuyAz9BX6t-APNgNixS2DJbL3xkW0al7Rd3w/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbw18Faz-PVh9oXfjasTQSZhuUmY-dCZ0frtEvJSmWEuFGC5-2pOv9EyqTR5eW2pMTC_1A/exec";
 
     async function fetchData() {
         try {
@@ -64,21 +64,18 @@
             renderBody('sec4-table', data.sec4);
         } catch (e) { console.error(e); alert("Failed to fetch data."); }
     }
-
     function renderBody(tableId, dataArray) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ""; 
-        dataArray.forEach(rowData => {
-            const row = document.createElement('tr');
-            rowData.forEach(cellData => {
-                const cell = document.createElement('td');
-                cell.textContent = cellData;
-                row.appendChild(cell);
-            });
-            tbody.appendChild(row);
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    if (!tbody) return; 
+    tbody.innerHTML = ""; 
+    
+    dataArray.forEach(rowData => {
+        const row = document.createElement('tr');
+        rowData.forEach(cellData => {
+            const cell = document.createElement('td');
+            cell.textContent = cellData; // This will show the text from your sheet
+            row.appendChild(cell);
         });
-    }
-    window.onload = fetchData;
-</script>
-</body>
-</html>
+        tbody.appendChild(row);
+    });
+}

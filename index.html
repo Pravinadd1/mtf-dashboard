@@ -103,7 +103,7 @@
         .badge-mtf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;}
         .badge-delivery { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;}
         .bold { font-weight: bold; }
-        .error-log { font-family: monospace; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 4px; text-align: left; font-size: 12px; white-space: pre-wrap; margin-top: 10px;}
+        .error-log { font-family: monospace; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 4px; text-align: left; font-size: 12px; white-space: pre-wrap; margin-top: 10px; border: 1px solid #f87171;}
     </style>
 </head>
 <body>
@@ -226,10 +226,10 @@
 </div>
 
 <script>
-    // --- 1. GOOGLE APP SCRIPT API URL (UPDATED URL) ---
-    const BASE_API_URL = "https://script.google.com/macros/s/AKfycbx9jBULTYug_jKkc8xAGW9k3bWgic6HlFBpo1mYFw_bywoMla4TTR7RYoTMfgagmD5v/exec";
+    // --- 1. GOOGLE APP SCRIPT API URL ---
+    const BASE_API_URL = "https://script.google.com/macros/s/AKfycby1Ri1BVK3UJEh7ZzJGIwnfEFtiGDWPPHFzlNsCLVOtwLnRIgiyDL65zEBaUOKQD78h/exec";
 
-    // --- 2. DATA FETCH ENGINE (WITH X-RAY CATCHER) ---
+    // --- 2. DATA FETCH ENGINE (BULLETPROOF) ---
     async function fetchDashboardData() {
         document.getElementById('live-status').innerText = "Fetching fresh data...";
         
@@ -237,13 +237,11 @@
             const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
             const response = await fetch(cacheBusterUrl, { redirect: "follow" });
             
-            // Check if Google returned an HTML error page instead of JSON
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("text/html")) {
                 throw new Error("Google blocked the request with an HTML page. Ensure Web App is set to 'Execute as: Me'.");
             }
 
-            // Step 1: Get raw text to see EXACTLY what Google sent
             const rawText = await response.text();
             let data;
             
@@ -253,13 +251,11 @@
                 throw new Error("Google did not return JSON. Raw output: " + rawText.substring(0, 150));
             }
 
-            // Step 2: Handle Apps Script Try/Catch errors
             if (data && data.success === false) {
                 throw new Error("Google Script Error: " + data.message);
             }
 
-            // Step 3: Validate the data structure
-            if (!data || !data.topMetrics) {
+            if (!data || data.version !== "3.0") {
                 console.error("Invalid Data Structure Received:", data);
                 throw new Error("API connected, but the data is incorrect. Google is likely running an OLD deployment. \n\nRaw Data Received:\n" + JSON.stringify(data, null, 2));
             }
@@ -288,7 +284,6 @@
     }
 
     function renderDashboard(data) {
-        // --- Render Top Cards ---
         document.getElementById('live-status').innerText = `Live Status: As of ${data.topMetrics.lastUpdated}`;
         document.getElementById('open-capital').innerText = formatCurrency(data.topMetrics.openingCapital);
         document.getElementById('open-count').innerText = data.topMetrics.openStocks;
@@ -308,7 +303,6 @@
             }
         }
 
-        // --- Render Section 1: Open Positions ---
         const s1 = document.getElementById('sec1-table');
         s1.innerHTML = "";
         if(data.sec1 && data.sec1.length > 0) {
@@ -330,7 +324,6 @@
             s1.innerHTML = `<tr><td colspan="18" style="text-align:center;">No open positions found.</td></tr>`;
         }
 
-        // --- Render Section 2: Weekly Performance ---
         const s2 = document.getElementById('sec2-table');
         s2.innerHTML = "";
         if(data.sec2 && data.sec2.length > 0) {
@@ -348,7 +341,6 @@
             s2.innerHTML = `<tr><td colspan="14" style="text-align:center;">No weekly data found.</td></tr>`;
         }
 
-        // --- Render Section 3: Billing & Trends ---
         const s3 = document.getElementById('sec3-table');
         s3.innerHTML = "";
         if(data.sec3 && data.sec3.length > 0) {
@@ -361,7 +353,6 @@
             s3.innerHTML = `<tr><td colspan="3" style="text-align:center;">No trends data found.</td></tr>`;
         }
 
-        // --- Render Section 4: Individual Trades ---
         const s4 = document.getElementById('sec4-table');
         s4.innerHTML = "";
         if(data.sec4 && data.sec4.length > 0) {
@@ -378,7 +369,6 @@
         }
     }
 
-    // --- 4. START PROCESS ON PAGE LOAD ---
     window.onload = fetchDashboardData;
 </script>
 </body>

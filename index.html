@@ -226,10 +226,10 @@
 </div>
 
 <script>
-    // --- 1. GOOGLE APP SCRIPT API URL ---
+    // --- 1. GOOGLE APP SCRIPT API URL (UPDATED URL) ---
     const BASE_API_URL = "https://script.google.com/macros/s/AKfycby1Ri1BVK3UJEh7ZzJGIwnfEFtiGDWPPHFzlNsCLVOtwLnRIgiyDL65zEBaUOKQD78h/exec";
 
-    // --- 2. DATA FETCH ENGINE (BULLETPROOF) ---
+    // --- 2. DATA FETCH ENGINE (WITH X-RAY CATCHER) ---
     async function fetchDashboardData() {
         document.getElementById('live-status').innerText = "Fetching fresh data...";
         
@@ -237,6 +237,7 @@
             const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
             const response = await fetch(cacheBusterUrl, { redirect: "follow" });
             
+            // Check if Google returned an HTML error page instead of JSON
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("text/html")) {
                 throw new Error("Google blocked the request with an HTML page. Ensure Web App is set to 'Execute as: Me'.");
@@ -382,5 +383,3 @@
 </script>
 </body>
 </html>
-         
-    

@@ -46,42 +46,28 @@
 </div>
 
 <script>
-    const API_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxwrLZ46R5Us0ErJ3pcX0WNoSPgliQQtl55H5Mv0dGBPJDwJu92Wggc9NSTQjQIb1Bf/exec";
+async function fetchData() {
+    const btn = document.querySelector('.refresh-btn');
+    btn.innerText = "Refreshing...";
+    
+    try {
+        const response = await fetch("YOUR_DEPLOYED_WEB_APP_URL_HERE");
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        
+        if (!data.success) throw new Error(data.message);
 
-    async function fetchData() {
-        const btn = document.querySelector('.refresh-btn');
-        btn.innerText = "Refreshing...";
-        try {
-            const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
-            const data = await response.json();
-            
-            // Update Top Metrics
-            document.getElementById('val-cap').innerText = data.topMetrics.openingCapital;
-            document.getElementById('val-open').innerText = data.topMetrics.openStocks;
-            document.getElementById('val-closed').innerText = data.topMetrics.closedTrades;
-            document.getElementById('val-net').innerText = data.topMetrics.netPL;
-            document.getElementById('val-netopen').innerText = data.topMetrics.netPLOpen;
-            document.getElementById('val-mtf').innerText = data.topMetrics.netPLMTF;
+        // Update Top Metrics
+        document.getElementById('val-cap').innerText = data.topMetrics.openingCapital;
+        // ... (update other IDs)
 
-            // Render Sections
-            renderBody('sec1-table', data.sec1);
-            renderBody('sec2-table', data.sec2);
-            renderBody('sec3-table', data.sec3);
-            renderBody('sec4-table', data.sec4);
-            
-            btn.innerText = "↻ Refresh Live";
-        } catch (e) { 
-            console.error("Error:", e); 
-            btn.innerText = "Error!";
-        }
+        renderBody('sec1-table', data.sec1);
+        // ... (render others)
+        
+        btn.innerText = "↻ Refresh Live";
+    } catch (e) { 
+        console.error("Dashboard Load Error:", e); 
+        btn.innerText = "Error! Click to retry";
     }
-
-    function renderBody(tableId, rows) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v}</td>`).join('')}</tr>`).join('');
-    }
-
-    window.onload = fetchData;
-</script>
-</body>
-</html>
+}

@@ -6,7 +6,6 @@
     <title>🏠 Dynamic MTF Portfolio Dashboard</title>
     <style>
         :root {
-            /* Light Theme Colors */
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
@@ -16,94 +15,22 @@
             --border: #e5e7eb;
             --header-bg: #1e293b;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        /* Top Header */
-        .top-bar {
-            background: var(--header-bg);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .top-bar h1 { margin: 0; font-size: 20px; font-weight: 600; }
-        .status-container { display: flex; align-items: center; gap: 10px; }
-        .timestamp { font-size: 14px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 4px; }
-        .refresh-btn { background: var(--green); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s; }
-        .refresh-btn:hover { background: #059669; }
-        
-        /* Summary Cards */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .card-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 600;}
-        .card-value { font-size: 22px; font-weight: bold; margin-bottom: 5px;}
-        .card-sub { font-size: 11px; color: var(--text-muted); }
-
-        /* Collapsible Sections */
-        details {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        summary {
-            padding: 15px 20px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fdfdfd;
-        }
-        summary::-webkit-details-marker { display: none; }
-        summary::after { content: '▼'; font-size: 12px; transition: transform 0.2s; }
-        details[open] summary::after { content: '▲'; }
-        details[open] summary { border-bottom: 1px solid var(--border); }
-        
-        /* Tables */
-        .table-responsive { overflow-x: auto; padding: 0; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; white-space: nowrap; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
-        tr:hover { background: #f8fafc; }
-        
-        /* Utilities */
-        .pos-value { color: var(--green); font-weight: 500;}
-        .neg-value { color: var(--red); font-weight: 500;}
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .badge-mtf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;}
-        .badge-delivery { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;}
-        .bold { font-weight: bold; }
-        .error-log { font-family: monospace; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 4px; text-align: left; font-size: 12px; white-space: pre-wrap; margin-top: 10px; border: 1px solid #f87171;}
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .dashboard-container { max-width: 1400px; margin: 0 auto; }
+        .top-bar { background: var(--header-bg); color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+        .card-value { font-size: 20px; font-weight: bold; }
+        details { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
+        summary { padding: 15px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .table-responsive { overflow-x: auto; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { background: #f9fafb; text-transform: uppercase; font-size: 11px; }
+        .pos-value { color: var(--green); font-weight: 600; }
+        .neg-value { color: var(--red); font-weight: 600; }
+        .refresh-btn { background: var(--green); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -111,265 +38,42 @@
 <div class="dashboard-container">
     <div class="top-bar">
         <h1>🏠 MTF PORTFOLIO DASHBOARD</h1>
-        <div class="status-container">
-            <div class="timestamp" id="live-status">Connecting to live database...</div>
-            <button class="refresh-btn" onclick="fetchDashboardData()">↻ Refresh Live</button>
-        </div>
+        <button class="refresh-btn" onclick="fetchData()">↻ Refresh Live</button>
     </div>
 
-    <div class="summary-grid">
-        <div class="card">
-            <div class="card-title">💰 Opening Capital</div>
-            <div class="card-value" id="open-capital">₹0</div>
-            <div class="card-sub">Deployed Jan-2026</div>
-        </div>
-        <div class="card">
-            <div class="card-title">📂 Open Positions</div>
-            <div class="card-value" id="open-count">Loading...</div>
-            <div class="card-sub">Awaiting exit strategy</div>
-        </div>
-        <div class="card">
-            <div class="card-title">✅ Closed Trades</div>
-            <div class="card-value" id="closed-count">Loading...</div>
-            <div class="card-sub">FIFO matched records</div>
-        </div>
-        <div class="card">
-            <div class="card-title">📈 Total Net P&L</div>
-            <div class="card-value" id="net-pl">Loading...</div>
-            <div class="card-sub">All weeks combined</div>
-        </div>
-        <div class="card">
-            <div class="card-title">📊 Net P&L (+Open)</div>
-            <div class="card-value" id="net-pl-open">Loading...</div>
-            <div class="card-sub">Includes current open holdings</div>
-        </div>
-        <div class="card">
-            <div class="card-title">📉 Net P&L (MTF Only)</div>
-            <div class="card-value" id="net-pl-mtf">Loading...</div>
-            <div class="card-sub">From Open Positions</div>
-        </div>
-    </div>
+    <div class="summary-grid" id="summary-grid"></div>
 
-    <details open>
-        <summary>📂 SECTION 1 — OPEN POSITIONS ANALYSIS</summary>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th><th>STOCK</th><th>BUY DATE</th><th>QTY</th><th>BUY PRICE</th>
-                        <th>TOTAL BUY VALUE</th><th>DAYS HELD</th><th>CMP</th><th>CURRENT VALUE</th>
-                        <th>UNREALISED P&L</th><th>TYPE</th><th>CASH MARGIN</th><th>MTF MARGIN</th>
-                        <th>MTF INTEREST</th><th>DELIVERY PL</th><th>MTF PL</th><th>TOTAL PL</th><th>ROI</th>
-                    </tr>
-                </thead>
-                <tbody id="sec1-table">
-                    <tr><td colspan="18" style="text-align:center; padding: 20px;">Fetching open positions...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </details>
-
-    <details open>
-        <summary>📅 SECTION 2 — WEEKLY PERFORMANCE SUMMARY</summary>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th><th>START DATE</th><th>END DATE</th><th>TOTAL TRADED VALUE</th>
-                        <th>TOTAL BROKERAGE</th><th>MTF INTEREST</th><th>GROSS P&L</th><th>NET P&L</th>
-                        <th>CUMULATIVE P&L</th><th>DRAWDOWN %</th><th>TRADES</th><th>SUCCESS</th>
-                        <th>FAILED</th><th>WIN RATE</th>
-                    </tr>
-                </thead>
-                <tbody id="sec2-table">
-                    <tr><td colspan="14" style="text-align:center; padding: 20px;">Fetching weekly records...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </details>
-
-    <details>
-        <summary>📈 SECTION 3 — HISTORICAL STRATEGY BILLING & TRENDS</summary>
-        <div class="table-responsive">
-            <table style="white-space: normal;">
-                <thead>
-                    <tr>
-                        <th>METRIC DIMENSION</th>
-                        <th>CURRENT PERFORMANCE VALUE</th>
-                        <th>ALLOCATION TARGET STATUS</th>
-                    </tr>
-                </thead>
-                <tbody id="sec3-table">
-                    <tr><td colspan="3" style="text-align:center; padding: 20px;">Fetching trends...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </details>
-
-    <details>
-        <summary>📊 SECTION 4 — INDIVIDUAL TRADE RECORDS (NEW TRADE ANALYSIS)</summary>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>STOCK NAME</th><th>STATUS</th><th>BUY DATE</th><th>QTY</th>
-                        <th>BUY PRICE</th><th>TOTAL VALUE</th><th>SELL DATE</th><th>NET P&L</th><th>ROI</th>
-                    </tr>
-                </thead>
-                <tbody id="sec4-table">
-                    <tr><td colspan="9" style="text-align:center; padding: 20px;">Fetching trade log...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </details>
-
+    <details open><summary>📂 SECTION 1 — OPEN POSITIONS</summary><div class="table-responsive"><table><tbody id="sec1-table"></tbody></table></div></details>
+    <details open><summary>📅 SECTION 2 — WEEKLY PERFORMANCE SUMMARY</summary><div class="table-responsive"><table><tbody id="sec2-table"></tbody></table></div></details>
+    <details open><summary>📈 SECTION 3 — HISTORICAL STRATEGY BILLING & TRENDS</summary><div class="table-responsive"><table><tbody id="sec3-table"></tbody></table></div></details>
+    <details open><summary>📊 SECTION 4 — INDIVIDUAL TRADE RECORDS (NEW TRADE ANALYSIS)</summary><div class="table-responsive"><table><tbody id="sec4-table"></tbody></table></div></details>
 </div>
 
 <script>
-    // --- 1. GOOGLE APP SCRIPT API URL ---
-    const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwF0TM3mB8vHBLslZ4odYmVn473qx8SrLSjuFKY0OMW2LsqR5mZIGKMIOKHF77E934nvg/exec";
+    const API_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
-    // --- 2. DATA FETCH ENGINE (BULLETPROOF) ---
-    async function fetchDashboardData() {
-        document.getElementById('live-status').innerText = "Fetching fresh data...";
-        
+    async function fetchData() {
         try {
-            const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
-            const response = await fetch(cacheBusterUrl, { redirect: "follow" });
+            const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+            const data = await response.json();
             
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("text/html")) {
-                throw new Error("Google blocked the request with an HTML page. Ensure Web App is set to 'Execute as: Me'.");
-            }
-
-            const rawText = await response.text();
-            let data;
+            // Rendering Logic
+            renderTable('sec1-table', data.sec1, ['#', 'Stock', 'Buy Date', 'Qty', 'Buy Price', 'Total Value', 'Days', 'CMP', 'Cur Value', 'Unrealised PL', 'Type', 'Cash Margin', 'MTF Margin', 'Interest', 'Delivery PL', 'MTF PL', 'Total PL', 'ROI']);
+            renderTable('sec2-table', data.sec2, ['#', 'Start Date', 'End Date', 'Traded Value', 'Brokerage', 'MTF Int', 'Gross PL', 'Net PL', 'Cum PL', 'Drawdown %', 'Trades', 'Success', 'Failed', 'Win Rate']);
+            renderTable('sec3-table', data.sec3, ['Metric Dimension', 'Current Value', 'Target Status']);
+            renderTable('sec4-table', data.sec4, ['Stock Name', 'Status', 'Buy Date', 'Qty', 'Buy Price', 'Total Value', 'Sell Date', 'Net PL', 'ROI']);
             
-            try {
-                data = JSON.parse(rawText);
-            } catch (e) {
-                throw new Error("Google did not return JSON. Raw output: " + rawText.substring(0, 150));
-            }
-
-            if (data && data.success === false) {
-                throw new Error("Google Script Error: " + data.message);
-            }
-
-            if (!data || data.version !== "3.0") {
-                console.error("Invalid Data Structure Received:", data);
-                throw new Error("API connected, but the data is incorrect. Google is likely running an OLD deployment. \n\nRaw Data Received:\n" + JSON.stringify(data, null, 2));
-            }
-
-            renderDashboard(data);
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            document.getElementById('live-status').innerText = "❌ Connection Failed";
-            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; padding:20px;">
-                <b style="color:red; font-size:16px;">Failed to pull data</b>
-                <div class="error-log">${error.message}</div>
-            </td></tr>`;
-        }
+        } catch (e) { console.error("Error fetching data:", e); }
     }
 
-    // --- 3. RENDER ENGINE ---
-    function formatCurrency(numStr) {
-        if (!numStr) return "₹0";
-        if (String(numStr).includes("₹")) return numStr;
-        return "₹" + numStr;
+    function renderTable(id, rows, headers) {
+        const tableBody = document.getElementById(id);
+        if (!rows) return;
+        tableBody.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>` +
+            rows.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join('')}</tr>`).join('');
     }
 
-    function getColorClass(valStr) {
-        if (!valStr || String(valStr).trim() === "0" || String(valStr).trim() === "-" || String(valStr).trim() === "0.00%") return "";
-        return String(valStr).includes("-") ? "neg-value" : "pos-value";
-    }
-
-    function renderDashboard(data) {
-        document.getElementById('live-status').innerText = `Live Status: As of ${data.topMetrics.lastUpdated}`;
-        document.getElementById('open-capital').innerText = formatCurrency(data.topMetrics.openingCapital);
-        document.getElementById('open-count').innerText = data.topMetrics.openStocks;
-        document.getElementById('closed-count').innerText = data.topMetrics.closedTrades;
-        
-        const metricMap = {
-            'net-pl': data.topMetrics.netPL,
-            'net-pl-open': data.topMetrics.netPLOpen,
-            'net-pl-mtf': data.topMetrics.netPLMTF
-        };
-
-        for (const [id, value] of Object.entries(metricMap)) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.innerText = formatCurrency(value);
-                el.className = `card-value ${getColorClass(value)}`;
-            }
-        }
-
-        const s1 = document.getElementById('sec1-table');
-        s1.innerHTML = "";
-        if(data.sec1 && data.sec1.length > 0) {
-            data.sec1.forEach(r => {
-                const badge = String(r.type).toLowerCase() === 'mtf' ? 'badge-mtf' : 'badge-delivery';
-                s1.innerHTML += `<tr>
-                    <td>${r.id}</td><td><b class="bold">${r.stock}</b></td><td>${r.buyDate}</td><td>${r.qty}</td>
-                    <td>${r.buyPrice}</td><td>${r.buyVal}</td><td>${r.days}</td><td>${r.cmp}</td><td>${r.curVal}</td>
-                    <td class="${getColorClass(r.unPL)}">${r.unPL}</td>
-                    <td><span class="badge ${badge}">${r.type}</span></td>
-                    <td>${r.cMar}</td><td>${r.mMar}</td><td>${r.mInt}</td>
-                    <td class="${getColorClass(r.dPl)}">${r.dPl}</td>
-                    <td class="${getColorClass(r.mPl)}">${r.mPl}</td>
-                    <td class="${getColorClass(r.tPl)}">${r.tPl}</td>
-                    <td class="${getColorClass(r.roi)}">${r.roi}</td>
-                </tr>`;
-            });
-        } else {
-            s1.innerHTML = `<tr><td colspan="18" style="text-align:center;">No open positions found.</td></tr>`;
-        }
-
-        const s2 = document.getElementById('sec2-table');
-        s2.innerHTML = "";
-        if(data.sec2 && data.sec2.length > 0) {
-            data.sec2.forEach(r => {
-                s2.innerHTML += `<tr>
-                    <td>${r.id}</td><td>${r.start}</td><td>${r.end}</td><td>${r.traded}</td>
-                    <td>${r.brok}</td><td>${r.mInt}</td>
-                    <td class="${getColorClass(r.gPl)}">${r.gPl}</td>
-                    <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
-                    <td class="${getColorClass(r.cPl)}">${r.cPl}</td>
-                    <td class="${getColorClass(r.draw)}">${r.draw}</td><td>${r.trades}</td><td>${r.suc}</td><td>${r.fail}</td><td>${r.win}</td>
-                </tr>`;
-            });
-        } else {
-            s2.innerHTML = `<tr><td colspan="14" style="text-align:center;">No weekly data found.</td></tr>`;
-        }
-
-        const s3 = document.getElementById('sec3-table');
-        s3.innerHTML = "";
-        if(data.sec3 && data.sec3.length > 0) {
-            data.sec3.forEach(r => {
-                s3.innerHTML += `<tr>
-                    <td>${r.dim}</td><td><b class="bold">${r.val}</b></td><td>${r.stat}</td>
-                </tr>`;
-            });
-        } else {
-            s3.innerHTML = `<tr><td colspan="3" style="text-align:center;">No trends data found.</td></tr>`;
-        }
-
-        const s4 = document.getElementById('sec4-table');
-        s4.innerHTML = "";
-        if(data.sec4 && data.sec4.length > 0) {
-            data.sec4.forEach(r => {
-                s4.innerHTML += `<tr>
-                    <td><b class="bold">${r.stock}</b></td><td><i>${r.status}</i></td><td>${r.bDate}</td>
-                    <td>${r.qty}</td><td>${r.bPrice}</td><td>${r.tVal}</td><td>${r.sDate}</td>
-                    <td class="${getColorClass(r.nPl)}">${r.nPl}</td>
-                    <td class="${getColorClass(r.roi)}">${r.roi}</td>
-                </tr>`;
-            });
-        } else {
-            s4.innerHTML = `<tr><td colspan="9" style="text-align:center;">No individual trade records found.</td></tr>`;
-        }
-    }
-
-    window.onload = fetchDashboardData;
+    window.onload = fetchData;
 </script>
 </body>
 </html>

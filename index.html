@@ -5,31 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏠 Dynamic MTF Portfolio Dashboard</title>
     <style>
-        :root {
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --green: #10b981;
-            --red: #ef4444;
-            --border: #e5e7eb;
-            --header-bg: #1e293b;
-        }
+        :root { --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #1f2937; --text-muted: #6b7280; --green: #10b981; --red: #ef4444; --border: #e5e7eb; --header-bg: #1e293b; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
         .dashboard-container { max-width: 1400px; margin: 0 auto; }
         .top-bar { background: var(--header-bg); color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
-        .card-value { font-size: 20px; font-weight: bold; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+        .card-value { font-size: 16px; font-weight: bold; }
         details { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
-        summary { padding: 15px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        summary { padding: 15px 20px; font-size: 14px; font-weight: 600; color: #374151; cursor: pointer; border-bottom: 1px solid var(--border); }
         .table-responsive { overflow-x: auto; padding: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-        th { background: #f9fafb; text-transform: uppercase; font-size: 11px; }
-        .pos-value { color: var(--green); font-weight: 600; }
-        .neg-value { color: var(--red); font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; white-space: nowrap; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { background: #f9fafb; text-transform: uppercase; }
         .refresh-btn { background: var(--green); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
@@ -41,36 +30,55 @@
         <button class="refresh-btn" onclick="fetchData()">↻ Refresh Live</button>
     </div>
 
-    <div class="summary-grid" id="summary-grid"></div>
+    <div class="summary-grid" id="summary-grid">
+        <div class="card"><div class="card-title">Opening Capital</div><div class="card-value" id="val-cap">--</div></div>
+        <div class="card"><div class="card-title">Open Stocks</div><div class="card-value" id="val-open">--</div></div>
+        <div class="card"><div class="card-title">Closed Trades</div><div class="card-value" id="val-closed">--</div></div>
+        <div class="card"><div class="card-title">Net P&L</div><div class="card-value" id="val-net">--</div></div>
+        <div class="card"><div class="card-title">Net P&L (Open)</div><div class="card-value" id="val-netopen">--</div></div>
+        <div class="card"><div class="card-title">MTF P&L</div><div class="card-value" id="val-mtf">--</div></div>
+    </div>
 
-    <details open><summary>📂 SECTION 1 — OPEN POSITIONS</summary><div class="table-responsive"><table><tbody id="sec1-table"></tbody></table></div></details>
-    <details open><summary>📅 SECTION 2 — WEEKLY PERFORMANCE SUMMARY</summary><div class="table-responsive"><table><tbody id="sec2-table"></tbody></table></div></details>
-    <details open><summary>📈 SECTION 3 — HISTORICAL STRATEGY BILLING & TRENDS</summary><div class="table-responsive"><table><tbody id="sec3-table"></tbody></table></div></details>
-    <details open><summary>📊 SECTION 4 — INDIVIDUAL TRADE RECORDS (NEW TRADE ANALYSIS)</summary><div class="table-responsive"><table><tbody id="sec4-table"></tbody></table></div></details>
+    <details open><summary>📂 SECTION 1 — OPEN POSITIONS ANALYSIS</summary><div class="table-responsive"><table id="sec1-table"><thead><tr><th>ID</th><th>Stock</th><th>Buy Date</th><th>Qty</th><th>Buy Price</th><th>Buy Val</th><th>Days</th><th>CMP</th><th>Cur Val</th><th>UnPL</th><th>Type</th><th>Cash M</th><th>MTF M</th><th>Int</th><th>Del PL</th><th>MTF PL</th><th>Tot PL</th><th>ROI</th></tr></thead><tbody></tbody></table></div></details>
+    <details open><summary>📅 SECTION 2 — WEEKLY PERFORMANCE SUMMARY</summary><div class="table-responsive"><table id="sec2-table"><thead><tr><th>ID</th><th>Start</th><th>End</th><th>Traded</th><th>Brok</th><th>MTF Int</th><th>Gross PL</th><th>Net PL</th><th>Cum PL</th><th>Drawdown</th><th>Trades</th><th>Success</th><th>Failed</th><th>Win Rate</th></tr></thead><tbody></tbody></table></div></details>
+    <details open><summary>📈 SECTION 3 — HISTORICAL TRENDS</summary><div class="table-responsive"><table id="sec3-table"><thead><tr><th>Dimension</th><th>Value</th><th>Status</th></tr></thead><tbody></tbody></table></div></details>
+    <details open><summary>📊 SECTION 4 — TRADE RECORDS</summary><div class="table-responsive"><table id="sec4-table"><thead><tr><th>Stock</th><th>Status</th><th>B.Date</th><th>Qty</th><th>B.Price</th><th>T.Val</th><th>S.Date</th><th>Net PL</th><th>ROI</th></tr></thead><tbody></tbody></table></div></details>
 </div>
 
 <script>
     const API_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
     async function fetchData() {
+        const btn = document.querySelector('.refresh-btn');
+        btn.innerText = "Refreshing...";
         try {
             const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
             const data = await response.json();
             
-            // Rendering Logic
-            renderTable('sec1-table', data.sec1, ['#', 'Stock', 'Buy Date', 'Qty', 'Buy Price', 'Total Value', 'Days', 'CMP', 'Cur Value', 'Unrealised PL', 'Type', 'Cash Margin', 'MTF Margin', 'Interest', 'Delivery PL', 'MTF PL', 'Total PL', 'ROI']);
-            renderTable('sec2-table', data.sec2, ['#', 'Start Date', 'End Date', 'Traded Value', 'Brokerage', 'MTF Int', 'Gross PL', 'Net PL', 'Cum PL', 'Drawdown %', 'Trades', 'Success', 'Failed', 'Win Rate']);
-            renderTable('sec3-table', data.sec3, ['Metric Dimension', 'Current Value', 'Target Status']);
-            renderTable('sec4-table', data.sec4, ['Stock Name', 'Status', 'Buy Date', 'Qty', 'Buy Price', 'Total Value', 'Sell Date', 'Net PL', 'ROI']);
+            // Update Top Metrics
+            document.getElementById('val-cap').innerText = data.topMetrics.openingCapital;
+            document.getElementById('val-open').innerText = data.topMetrics.openStocks;
+            document.getElementById('val-closed').innerText = data.topMetrics.closedTrades;
+            document.getElementById('val-net').innerText = data.topMetrics.netPL;
+            document.getElementById('val-netopen').innerText = data.topMetrics.netPLOpen;
+            document.getElementById('val-mtf').innerText = data.topMetrics.netPLMTF;
+
+            // Render Sections
+            renderBody('sec1-table', data.sec1);
+            renderBody('sec2-table', data.sec2);
+            renderBody('sec3-table', data.sec3);
+            renderBody('sec4-table', data.sec4);
             
-        } catch (e) { console.error("Error fetching data:", e); }
+            btn.innerText = "↻ Refresh Live";
+        } catch (e) { 
+            console.error("Error:", e); 
+            btn.innerText = "Error!";
+        }
     }
 
-    function renderTable(id, rows, headers) {
-        const tableBody = document.getElementById(id);
-        if (!rows) return;
-        tableBody.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>` +
-            rows.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join('')}</tr>`).join('');
+    function renderBody(tableId, rows) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v}</td>`).join('')}</tr>`).join('');
     }
 
     window.onload = fetchData;

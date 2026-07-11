@@ -225,27 +225,41 @@
 </div>
 
 <script>
-    // --- 1. GOOGLE APP SCRIPT API URL ---
-    const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwjjfZ5cwkcUHwtv3hSKLOuFUlsQKPcKbiT2xxI58n8_OeVs6SLkEumw_i7Q69b-N-4/exec";
+    // --- 1. GOOGLE APP SCRIPT API URL (UPDATED URL) ---
+    const BASE_API_URL = "https://script.google.com/macros/s/AKfycby1Ri1BVK3UJEh7ZzJGIwnfEFtiGDWPPHFzlNsCLVOtwLnRIgiyDL65zEBaUOKQD78h/exec";
 
-    // --- 2. DATA FETCH ENGINE (WITH CACHE BUSTER) ---
+    // --- 2. DATA FETCH ENGINE (WITH X-RAY CATCHER) ---
     async function fetchDashboardData() {
-        // Change UI state to let user know it's working
         document.getElementById('live-status').innerText = "Fetching fresh data...";
         
         try {
-            // Append a unique timestamp so Google NEVER sends a cached version
             const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
-            
             const response = await fetch(cacheBusterUrl, { redirect: "follow" });
+            
+            // Check if Google returned an HTML error page instead of JSON
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+                throw new Error("Google blocked the request. Ensure Web App is set to 'Execute as: Me'.");
+            }
+
             const data = await response.json();
             
+            // Handle internal Google Script errors gracefully
+            if (data.success === false) {
+                console.error("Google Script Error:", data.message);
+                document.getElementById('live-status').innerText = "❌ Internal Script Error";
+                document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red; padding:20px;">
+                    <b>Google Script Failed:</b> ${data.message}
+                </td></tr>`;
+                return;
+            }
+
             renderDashboard(data);
         } catch (error) {
-            console.error("Error fetching data:", error);
-            document.getElementById('live-status').innerText = "❌ Connection Failed. Check Permissions.";
+            console.error("Fetch Error:", error);
+            document.getElementById('live-status').innerText = "❌ Connection Failed";
             document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red; padding:20px;">
-                <b>Failed to pull data. Ensure your Google Web App deployment is set to "Who has access: Anyone".</b>
+                <b>Failed to pull data:</b> ${error.message}
             </td></tr>`;
         }
     }

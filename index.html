@@ -103,6 +103,7 @@
         .badge-mtf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;}
         .badge-delivery { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;}
         .bold { font-weight: bold; }
+        .error-log { font-family: monospace; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 4px; text-align: left; font-size: 12px; white-space: pre-wrap; margin-top: 10px;}
     </style>
 </head>
 <body>
@@ -225,10 +226,10 @@
 </div>
 
 <script>
-    // --- 1. GOOGLE APP SCRIPT API URL (UPDATED URL) ---
+    // --- 1. GOOGLE APP SCRIPT API URL ---
     const BASE_API_URL = "https://script.google.com/macros/s/AKfycby1Ri1BVK3UJEh7ZzJGIwnfEFtiGDWPPHFzlNsCLVOtwLnRIgiyDL65zEBaUOKQD78h/exec";
 
-    // --- 2. DATA FETCH ENGINE (WITH X-RAY CATCHER) ---
+    // --- 2. DATA FETCH ENGINE (BULLETPROOF) ---
     async function fetchDashboardData() {
         document.getElementById('live-status').innerText = "Fetching fresh data...";
         
@@ -236,30 +237,39 @@
             const cacheBusterUrl = `${BASE_API_URL}?mode=data&t=${new Date().getTime()}`;
             const response = await fetch(cacheBusterUrl, { redirect: "follow" });
             
-            // Check if Google returned an HTML error page instead of JSON
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("text/html")) {
-                throw new Error("Google blocked the request. Ensure Web App is set to 'Execute as: Me'.");
+                throw new Error("Google blocked the request with an HTML page. Ensure Web App is set to 'Execute as: Me'.");
             }
 
-            const data = await response.json();
+            // Step 1: Get raw text to see EXACTLY what Google sent
+            const rawText = await response.text();
+            let data;
             
-            // Handle internal Google Script errors gracefully
-            if (data.success === false) {
-                console.error("Google Script Error:", data.message);
-                document.getElementById('live-status').innerText = "❌ Internal Script Error";
-                document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red; padding:20px;">
-                    <b>Google Script Failed:</b> ${data.message}
-                </td></tr>`;
-                return;
+            try {
+                data = JSON.parse(rawText);
+            } catch (e) {
+                throw new Error("Google did not return JSON. Raw output: " + rawText.substring(0, 150));
+            }
+
+            // Step 2: Handle Apps Script Try/Catch errors
+            if (data && data.success === false) {
+                throw new Error("Google Script Error: " + data.message);
+            }
+
+            // Step 3: Validate the data structure
+            if (!data || !data.topMetrics) {
+                console.error("Invalid Data Structure Received:", data);
+                throw new Error("API connected, but the data is incorrect. Google is likely running an OLD deployment. \n\nRaw Data Received:\n" + JSON.stringify(data, null, 2));
             }
 
             renderDashboard(data);
         } catch (error) {
             console.error("Fetch Error:", error);
             document.getElementById('live-status').innerText = "❌ Connection Failed";
-            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; color:red; padding:20px;">
-                <b>Failed to pull data:</b> ${error.message}
+            document.getElementById('sec1-table').innerHTML = `<tr><td colspan="18" style="text-align:center; padding:20px;">
+                <b style="color:red; font-size:16px;">Failed to pull data</b>
+                <div class="error-log">${error.message}</div>
             </td></tr>`;
         }
     }
@@ -372,3 +382,5 @@
 </script>
 </body>
 </html>
+         
+    
